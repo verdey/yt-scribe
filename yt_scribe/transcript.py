@@ -81,13 +81,23 @@ def fetch_transcript(
     try:
         transcript = transcript_list.find_transcript(languages)
     except NoTranscriptFound:
-        available = [
-            f"{t.language} ({t.language_code})"
-            for t in transcript_list
-        ]
-        raise TranscriptNotAvailableError(
-            f"No transcript for languages {languages}. "
-            f"Available: {', '.join(available) or 'none'}"
+        # Auto-fallback: try to grab the best available transcript
+        available = list(transcript_list)
+        if not available:
+            raise TranscriptNotAvailableError(
+                f"No transcripts available for video {video_id}"
+            )
+
+        # Prefer manually created transcripts over auto-generated
+        manual = [t for t in available if not t.is_generated]
+        transcript = manual[0] if manual else available[0]
+
+        log.warning(
+            "Preferred languages %s not available, fell back to %s (%s%s)",
+            languages,
+            transcript.language,
+            transcript.language_code,
+            ", auto-generated" if transcript.is_generated else "",
         )
 
     fetched = transcript.fetch()
