@@ -38,9 +38,15 @@ if ($bundle === '') {
 // Sanitize bundle name: lowercase, alphanumeric + underscore + hyphen only
 $bundle = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '_', $bundle));
 
+$projectRoot = realpath(__DIR__ . '/../../');
+$transcriptsDir = $projectRoot . '/transcripts';
+if (!is_dir($transcriptsDir)) {
+    mkdir($transcriptsDir, 0755, true);
+}
+
 $result = yt_scribe('batch', $videoIds, [
     '--bundle' => $bundle,
-    '-o' => '/Users/verdey/code/verdey-projects/yt-scribe/transcripts',
+    '-o' => $transcriptsDir,
     '--json' => true,
 ]);
 

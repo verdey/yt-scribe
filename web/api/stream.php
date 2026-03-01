@@ -49,9 +49,25 @@ if ($bundle === '') {
 // Sanitize bundle name
 $bundle = strtolower(preg_replace('/[^a-zA-Z0-9_-]/', '_', $bundle));
 
-// Build command
-$bin = '/Users/verdey/code/verdey-projects/yt-scribe/.venv/bin/yt-scribe';
-$transcriptsDir = '/Users/verdey/code/verdey-projects/yt-scribe/transcripts';
+// Resolve paths dynamically from project root
+$projectRoot = realpath(__DIR__ . '/../../');
+$bin = $projectRoot . '/.venv/bin/yt-scribe';
+
+// Fallback: check if yt-scribe is on PATH
+if (!file_exists($bin)) {
+    $bin = trim(shell_exec('which yt-scribe 2>/dev/null') ?: '');
+}
+
+if (!$bin || !file_exists($bin)) {
+    echo "data: " . json_encode(['event' => 'error', 'message' => 'yt-scribe CLI not found. Expected at: ' . $projectRoot . '/.venv/bin/yt-scribe']) . "\n\n";
+    flush();
+    exit;
+}
+
+$transcriptsDir = $projectRoot . '/transcripts';
+if (!is_dir($transcriptsDir)) {
+    mkdir($transcriptsDir, 0755, true);
+}
 
 $cmd = escapeshellarg($bin) . ' batch'
     . ' --bundle ' . escapeshellarg($bundle)

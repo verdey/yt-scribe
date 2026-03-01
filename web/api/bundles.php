@@ -3,7 +3,8 @@
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
 
-$transcriptsDir = '/Users/verdey/code/verdey-projects/yt-scribe/transcripts';
+$projectRoot = realpath(__DIR__ . '/../../');
+$transcriptsDir = $projectRoot . '/transcripts';
 
 /**
  * Parse flat YAML frontmatter from a markdown file.

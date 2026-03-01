@@ -10,7 +10,20 @@
  */
 function yt_scribe(string $subcommand, array $args = [], array $flags = []): array
 {
-    $bin = '/Users/verdey/code/verdey-projects/yt-scribe/.venv/bin/yt-scribe';
+    // Resolve project root: web/includes/cli.php -> ../../
+    $projectRoot = realpath(__DIR__ . '/../../');
+    $bin = $projectRoot . '/.venv/bin/yt-scribe';
+
+    // Fallback: check if yt-scribe is on PATH
+    if (!file_exists($bin)) {
+        $bin = trim(shell_exec('which yt-scribe 2>/dev/null') ?: '');
+    }
+
+    if (!$bin || !file_exists($bin)) {
+        throw new RuntimeException(
+            'yt-scribe CLI not found. Expected at: ' . $projectRoot . '/.venv/bin/yt-scribe'
+        );
+    }
 
     $cmd = escapeshellarg($bin) . ' ' . escapeshellarg($subcommand);
 
