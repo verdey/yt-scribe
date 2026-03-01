@@ -37,13 +37,16 @@
 
         <!-- Results table -->
         <div x-show="results.length > 0" :class="loading && 'loading'">
-            <table>
+            <div class="table-wrap"><table>
                 <thead>
                     <tr>
                         <th><input type="checkbox" :checked="allSelected" @change="toggleAll"></th>
                         <th>#</th>
+                        <th></th>
                         <th>Title</th>
                         <th>Channel</th>
+                        <th>Views</th>
+                        <th>Uploaded</th>
                         <th>Duration</th>
                     </tr>
                 </thead>
@@ -52,13 +55,23 @@
                         <tr>
                             <td><input type="checkbox" :value="v.video_id" x-model="selected"></td>
                             <td x-text="i + 1"></td>
+                            <td class="thumb-cell">
+                                <img
+                                    x-show="v.thumbnail_url"
+                                    :src="v.thumbnail_url"
+                                    :alt="v.title"
+                                    loading="lazy"
+                                >
+                            </td>
                             <td x-text="v.title"></td>
                             <td x-text="v.channel || v.uploader || ''"></td>
+                            <td x-text="formatViews(v.view_count)"></td>
+                            <td x-text="v.upload_date || '-'"></td>
                             <td x-text="formatDuration(v.duration_seconds || v.duration)"></td>
                         </tr>
                     </template>
                 </tbody>
-            </table>
+            </table></div>
 
             <!-- Bundle name + download -->
             <div class="bundle-row">
@@ -156,6 +169,15 @@
                     return h + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
                 }
                 return m + ':' + String(s).padStart(2, '0');
+            },
+
+            formatViews(count) {
+                if (count == null) return '-';
+                count = Number(count);
+                if (isNaN(count)) return '-';
+                if (count >= 1000000) return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+                if (count >= 1000) return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+                return count.toLocaleString();
             },
 
             autoSlug(text) {
