@@ -139,15 +139,28 @@ def _format_duration_short(seconds: int | float | None) -> str:
     return f"{minutes:>2d}:{secs:02d}"
 
 
+def _format_views(count: int | None) -> str:
+    """Format view count as human-readable: 1234567 -> 1.2M, 50000 -> 50K."""
+    if count is None:
+        return "-"
+    if count >= 1_000_000:
+        return f"{count / 1_000_000:.1f}M"
+    if count >= 1_000:
+        return f"{count / 1_000:.0f}K"
+    return str(count)
+
+
 def _display_results(results: list) -> None:
     """Print a formatted table of search results."""
     print()
-    print(f"  {'#':>3}  {'Title':<50}  {'Channel':<15}  {'Duration':>8}")
+    print(f"  {'#':>3}  {'Title':<45}  {'Channel':<15}  {'Views':>6}  {'Uploaded':<10}  {'Duration':>8}")
     for i, r in enumerate(results, 1):
-        title = r.title[:47] + "..." if len(r.title) > 50 else r.title
+        title = r.title[:42] + "..." if len(r.title) > 45 else r.title
         channel = r.channel[:15] if r.channel else "Unknown"
+        views = _format_views(r.view_count)
+        uploaded = r.upload_date if r.upload_date else "-"
         dur = _format_duration_short(r.duration_seconds)
-        print(f"  {i:>3}  {title:<50}  {channel:<15}  {dur:>8}")
+        print(f"  {i:>3}  {title:<45}  {channel:<15}  {views:>6}  {uploaded:<10}  {dur:>8}")
     print()
 
 
@@ -227,6 +240,9 @@ def search_main(argv: list[str]) -> int:
                     "channel": r.channel,
                     "duration_seconds": r.duration_seconds,
                     "url": r.url,
+                    "view_count": r.view_count,
+                    "upload_date": r.upload_date,
+                    "thumbnail_url": r.thumbnail_url,
                 }
                 for i, r in enumerate(results, 1)
             ]
@@ -393,6 +409,9 @@ def playlist_main(argv: list[str]) -> int:
                         "channel": v.channel,
                         "duration_seconds": v.duration_seconds,
                         "url": v.url,
+                        "view_count": v.view_count,
+                        "upload_date": v.upload_date,
+                        "thumbnail_url": v.thumbnail_url,
                     }
                     for i, v in enumerate(playlist_info.videos, 1)
                 ],

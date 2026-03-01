@@ -16,6 +16,9 @@ class SearchResult:
     channel: str
     duration_seconds: int | None
     url: str
+    view_count: int | None = None
+    upload_date: str | None = None      # YYYY-MM-DD or None
+    thumbnail_url: str | None = None
 
 
 def search_youtube(query: str, max_results: int = 10) -> list[SearchResult]:
@@ -58,12 +61,19 @@ def search_youtube(query: str, max_results: int = 10) -> list[SearchResult]:
         if entry is None:
             continue
         vid_id = entry.get("id", "")
+        raw_date = entry.get("upload_date", "")
+        iso_date = None
+        if raw_date and len(raw_date) == 8:
+            iso_date = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
         results.append(SearchResult(
             video_id=vid_id,
             title=entry.get("title", "Unknown"),
             channel=entry.get("channel", entry.get("uploader", "Unknown")),
             duration_seconds=entry.get("duration"),
             url=entry.get("url", f"https://www.youtube.com/watch?v={vid_id}"),
+            view_count=entry.get("view_count"),
+            upload_date=iso_date,
+            thumbnail_url=entry.get("thumbnail"),
         ))
 
     return results
@@ -114,12 +124,19 @@ def fetch_playlist(playlist_url: str) -> PlaylistInfo:
         if entry is None:
             continue
         vid_id = entry.get("id", "")
+        raw_date = entry.get("upload_date", "")
+        iso_date = None
+        if raw_date and len(raw_date) == 8:
+            iso_date = f"{raw_date[:4]}-{raw_date[4:6]}-{raw_date[6:8]}"
         videos.append(SearchResult(
             video_id=vid_id,
             title=entry.get("title", "Unknown"),
             channel=entry.get("channel", entry.get("uploader", "Unknown")),
             duration_seconds=entry.get("duration"),
             url=entry.get("url", f"https://www.youtube.com/watch?v={vid_id}"),
+            view_count=entry.get("view_count"),
+            upload_date=iso_date,
+            thumbnail_url=entry.get("thumbnail"),
         ))
 
     if not videos:
