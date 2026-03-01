@@ -11,6 +11,7 @@ dependencies = [
     "youtube-transcript-api>=1.2.0",
     "requests>=2.28.0",
     "yt-dlp>=2024.1.0",
+    "tomli>=1.1.0; python_version < '3.11'",
 ]
 
 [project.scripts]

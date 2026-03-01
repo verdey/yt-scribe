@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from . import __version__
+from .config import load_config, apply_config_defaults
 from .url_parser import extract_video_id
 from .metadata import fetch_metadata
 from .transcript import fetch_transcript
@@ -42,7 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-l", "--lang",
         nargs="+",
-        default=["en"],
+        default=None,
         help="Preferred transcript language(s), e.g. --lang en es (default: en)",
     )
     parser.add_argument(
@@ -54,6 +55,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--enrich",
         action="store_true",
+        default=None,
         help=(
             "Use yt-dlp for richer metadata (upload date, description). "
             "Requires: pip install yt-dlp"
@@ -110,7 +112,7 @@ def build_search_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-l", "--lang",
         nargs="+",
-        default=["en"],
+        default=None,
         help="Preferred transcript language(s) (default: en)",
     )
     parser.add_argument(
@@ -196,6 +198,8 @@ def search_main(argv: list[str]) -> int:
 
     parser = build_search_parser()
     args = parser.parse_args(argv)
+    config = load_config()
+    apply_config_defaults(args, config)
 
     max_results = min(args.results, 25)
 
@@ -338,7 +342,7 @@ def build_playlist_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-l", "--lang",
         nargs="+",
-        default=["en"],
+        default=None,
         help="Preferred transcript language(s) (default: en)",
     )
     parser.add_argument(
@@ -362,6 +366,8 @@ def playlist_main(argv: list[str]) -> int:
 
     parser = build_playlist_parser()
     args = parser.parse_args(argv)
+    config = load_config()
+    apply_config_defaults(args, config)
 
     level = logging.DEBUG if args.verbose else logging.WARNING
     logging.basicConfig(
@@ -516,7 +522,7 @@ def build_batch_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "-l", "--lang",
         nargs="+",
-        default=["en"],
+        default=None,
         help="Preferred transcript language(s) (default: en)",
     )
     parser.add_argument(
@@ -552,6 +558,8 @@ def batch_main(argv: list[str]) -> int:
 
     parser = build_batch_parser()
     args = parser.parse_args(argv)
+    config = load_config()
+    apply_config_defaults(args, config)
 
     level = logging.DEBUG if args.verbose else logging.WARNING
     logging.basicConfig(
@@ -741,6 +749,8 @@ def main(argv: list[str] | None = None) -> int:
     # Existing fetch logic (unchanged)
     parser = build_parser()
     args = parser.parse_args(argv)
+    config = load_config()
+    apply_config_defaults(args, config)
 
     level = logging.DEBUG if args.verbose else logging.WARNING
     logging.basicConfig(
