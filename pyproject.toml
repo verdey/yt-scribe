@@ -16,5 +16,12 @@ dependencies = [
 [project.scripts]
 yt-scribe = "yt_scribe.cli:main"
 
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
 [tool.setuptools.packages.find]
 include = ["yt_scribe*"]
